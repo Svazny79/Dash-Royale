@@ -1,4 +1,3 @@
-const socket = io();
 let elixir = 10;
 let selectedCard = null;
 let gameOver = false;
@@ -35,32 +34,19 @@ function create() {
   this.input.on('pointerdown', pointer => {
     if (!selectedCard || gameOver) return;
 
-    socket.emit('playCard', {
-      type: selectedCard,
-      x: pointer.x,
-      y: pointer.y
-    });
-  });
-
-  socket.on('playCard', data => {
-    if (data.type === 'fireball') {
-      castFireball(this, data.x, data.y);
+    if (selectedCard === 'fireball') {
+      castFireball(this, pointer.x, pointer.y);
       return;
     }
 
-    const troop = this.add.image(data.x, data.y, data.type)
-      .setScale(0.45)
-      .setData({ hp: data.type === 'knight' ? 600 : 300 });
-
-    troop.bar = createHPBar(this, troop);
-    troops.push(troop);
+    spawnTroop(this, pointer.x, pointer.y, selectedCard);
   });
 }
 
 function update() {
   troops.forEach(t => {
     if (!t.active) return;
-    t.y -= t.texture.key === 'archer' ? 0.7 : 0.5;
+    t.y -= t.type === 'archer' ? 0.7 : 0.5;
     updateHPBar(t);
 
     towers.forEach(tower => {
@@ -72,10 +58,20 @@ function update() {
   });
 }
 
-// ---------------- HELPERS ----------------
+// -------- GAME LOGIC --------
+
+function spawnTroop(scene, x, y, type) {
+  const troop = scene.add.image(x, y, type).setScale(0.45);
+  troop.type = type;
+  troop.hp = type === 'knight' ? 600 : 300;
+  troop.maxHp = troop.hp;
+  troop.bar = createHPBar(scene, troop);
+  troops.push(troop);
+}
 
 function createTower(scene, x, y, texture, hp) {
-  const tower = scene.add.image(x, y, texture).setData('hp', hp);
+  const tower = scene.add.image(x, y, texture);
+  tower.hp = hp;
   tower.maxHp = hp;
   tower.bar = createHPBar(scene, tower);
   return tower;
@@ -83,24 +79,22 @@ function createTower(scene, x, y, texture, hp) {
 
 function createHPBar(scene, obj) {
   const bar = scene.add.graphics();
-  bar.fillStyle(0xff0000);
-  bar.fillRect(-20, -35, 40, 5);
-  obj.add(bar);
+  obj.bar = bar;
   return bar;
 }
 
 function updateHPBar(obj) {
   obj.bar.clear();
-  const pct = obj.getData('hp') / obj.maxHp;
+  const pct = obj.hp / obj.maxHp;
   obj.bar.fillStyle(0xff0000);
-  obj.bar.fillRect(-20, -35, 40 * pct, 5);
+  obj.bar.fillRect(obj.x - 20, obj.y - 40, 40 * pct, 5);
 }
 
 function damageTower(tower, dmg) {
-  tower.setData('hp', tower.getData('hp') - dmg);
+  tower.hp -= dmg;
   updateHPBar(tower);
 
-  if (tower.getData('hp') <= 0) {
+  if (tower.hp <= 0) {
     tower.destroy();
     checkWin();
   }
@@ -111,14 +105,15 @@ function castFireball(scene, x, y) {
   setTimeout(() => {
     towers.forEach(t => {
       if (t.active && Phaser.Math.Distance.Between(x, y, t.x, t.y) < 80) {
-        damageTower(t, 400);
+        t.hp -= 400;
+        updateHPBar(t);
       }
     });
     fb.destroy();
   }, 300);
 }
 
-// ---------------- UI ----------------
+// -------- UI --------
 
 window.playCard = (type, cost) => {
   if (elixir < cost || gameOver) return;
@@ -139,6 +134,7 @@ function checkWin() {
   if (!kingAlive) {
     gameOver = true;
     document.getElementById('result').style.display = 'block';
-    document.getElementById('result').innerText = "🏆 YOU WIN! +30 TROPHIES";
+    document.getElementById('result').innerText =
+      "🏆 YOU WIN! +30 TROPHIES";
   }
 }
