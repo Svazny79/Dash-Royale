@@ -5,29 +5,29 @@ const io = require('socket.io')(http);
 
 app.use(express.static('../public'));
 
-let waitingPlayer = null;
+let waiting = null;
 
 io.on('connection', socket => {
-  if (waitingPlayer) {
-    socket.room = waitingPlayer.room;
+  if (waiting) {
+    socket.room = waiting.room;
     socket.join(socket.room);
-    io.to(socket.room).emit('startMatch');
-    waitingPlayer = null;
+    io.to(socket.room).emit('start');
+    waiting = null;
   } else {
     socket.room = socket.id;
     socket.join(socket.room);
-    waitingPlayer = socket;
+    waiting = socket;
   }
 
-  socket.on('spawnTroop', data => {
-    io.to(socket.room).emit('spawnTroop', data);
+  socket.on('playCard', data => {
+    io.to(socket.room).emit('playCard', data);
   });
 
   socket.on('disconnect', () => {
-    if (waitingPlayer === socket) waitingPlayer = null;
+    if (waiting === socket) waiting = null;
   });
 });
 
 http.listen(3000, () => {
-  console.log('Dash Royale running at http://localhost:3000');
+  console.log('Dash Royale live at http://localhost:3000');
 });
