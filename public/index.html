@@ -6,7 +6,7 @@
   <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    body { margin:0; background:#1e1e1e; }
+    body { margin:0; background:#111; overflow:hidden; }
     #ui {
       position:absolute;
       bottom:10px;
@@ -16,36 +16,48 @@
       gap:10px;
     }
     .card {
-      width:80px;
-      height:100px;
-      background:#333;
+      width:90px;
+      height:110px;
+      background:#222;
       border:2px solid #fff;
       color:#fff;
       display:flex;
-      align-items:center;
+      flex-direction:column;
       justify-content:center;
+      align-items:center;
       cursor:pointer;
+      font-size:14px;
     }
     #elixir {
       position:absolute;
-      bottom:130px;
+      bottom:140px;
       left:20px;
       color:#fff;
       font-size:20px;
+    }
+    #result {
+      position:absolute;
+      top:40%;
+      width:100%;
+      text-align:center;
+      font-size:48px;
+      color:#ffd700;
+      display:none;
     }
   </style>
 </head>
 <body>
 
 <div id="elixir">Elixir: 10</div>
+<div id="result"></div>
+
 <div id="ui">
-  <div class="card" onclick="playCard('knight',3)">Knight (3)</div>
-  <div class="card">Locked</div>
-  <div class="card">Locked</div>
-  <div class="card">Locked</div>
+  <div class="card" onclick="playCard('knight',3)">Knight<br>3</div>
+  <div class="card" onclick="playCard('archer',2)">Archer<br>2</div>
+  <div class="card" onclick="playCard('fireball',4)">Fireball<br>4</div>
+  <div class="card">Coming Soon</div>
 </div>
 
 <script src="game.js"></script>
 </body>
 </html>
-
