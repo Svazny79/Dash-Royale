@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dash Royale</title>
+  <meta charset="utf-8">
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body { margin:0; background:#1e1e1e; }
+    #ui {
+      position:absolute;
+      bottom:10px;
+      left:50%;
+      transform:translateX(-50%);
+      display:flex;
+      gap:10px;
+    }
+    .card {
+      width:80px;
+      height:100px;
+      background:#333;
+      border:2px solid #fff;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+    }
+    #elixir {
+      position:absolute;
+      bottom:130px;
+      left:20px;
+      color:#fff;
+      font-size:20px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="elixir">Elixir: 10</div>
+<div id="ui">
+  <div class="card" onclick="playCard('knight',3)">Knight (3)</div>
+  <div class="card">Locked</div>
+  <div class="card">Locked</div>
+  <div class="card">Locked</div>
+</div>
+
+<script src="game.js"></script>
+</body>
+</html>
 
